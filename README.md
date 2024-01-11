@@ -5,7 +5,14 @@ Hack to subscribe RSS feeds on a self-hosted Omnivore instance.
 Currently, Omnivore's RSS subscriptions rely on cloud tasks. Therefore, self-hosted instances miss this feature.  This repo provides a simple Python script, which reads the `FEEDS_FILE` (JSON), iterates over its entries, [parses their feeds](https://feedparser.readthedocs.io/en/latest/#), and [tells Omnivore to add new posts](https://docs.omnivore.app/integrations/api.html#saving-a-url-with-the-api). To avoid re-adding posts, it uses a `CACHE_FILE` (JSON) to remember which posts were already added. Scheduling this script ([e.g., using a cron job](#example-kubernetes-cron-job-to-schedule-omnivore-rss-handler-hack)) once an hour mimics (hosted) Omnivores' built-in support for RSS subscriptions.
 
 
+## `FEEDS_FILE` Structure
 
+```json
+{
+  "blog": "https://blog.example/feed",
+  "another-blog": "https://another-blog.example/rss.xml",
+}
+```
 
 ## Build and Push Image
 
