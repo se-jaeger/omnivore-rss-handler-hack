@@ -10,15 +10,25 @@ import feedparser
 import requests
 
 
-def construct_request_payload(post_url: str) -> dict:
+def construct_request_payload(
+    article_url: str,
+    labels: list[str] = [],
+    source: str = "api",
+    folder: str = "following",
+) -> dict:
+    # make sure 'RSS' exists and there are no duplicates
+    labels = labels if isinstance(labels, list) else [labels]
+    labels = [{"name": x} for x in set(labels + ["RSS"])]
+
     return {
         "query": "mutation SaveUrl($input: SaveUrlInput!) {saveUrl(input: $input) {... on SaveSuccess {url clientRequestId} ... on SaveError {errorCodes message}}}",
         "variables": {
             "input": {
                 "clientRequestId": str(uuid.uuid4()),
-                "source": "api",
-                "url": post_url,
-                "labels": [{"name": "RSS"}],
+                "source": source,
+                "url": article_url,
+                "labels": labels,
+                "folder": folder,
             }
         },
     }
@@ -72,7 +82,9 @@ def parse_feed_and_add_to_omnivore(
                         # API call to omnivore to save
                         requests.post(
                             url=api_url,
-                            json=construct_request_payload(post_url=post_url),
+                            json=construct_request_payload(
+                                article_url=article_url, labels=[feed_title]
+                            ),
                             headers={
                                 "content-type": "application/json",
                                 "authorization": api_token,
